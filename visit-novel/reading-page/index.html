@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@1,900&family=Nunito:ital,wght@0,400;0,700;1,400&family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="img/logo-shortcut.png" >
+    <title>Read Mode</title>
+</head>
+<body>
+    <script src="script.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="dist/sweetalert2.min.css">
+
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo">
+                <img class="gambar-logo" src="img/logo.png" alt="">
+                <div class="nama-logo">PlotPool</div>
+            </div>
+        </div>
+
+        <ul class="daftar-menu">
+            <li class="pencarian">
+                <i class="bx bx-search"></i>
+                <input type="text" placeholder="Search Novel...">
+            </li>
+            <li>
+                <a href="#">
+                    <i class='bx bx-home'></i>
+                    <span class="nama-menu" onclick="toHome()">Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bx bx-book-open"></i>
+                    <span class="nama-menu" onclick="toTitles()">Title</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bx bx-crosshair"></i>
+                    <span class="nama-menu">Random</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa fa-info"></i>
+                    <span class="nama-menu" onclick="toAboutus()">About Us</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="info-profil">
+            <div class="profil">
+                <div class="detail-profil">
+                    <img src="img/no-profile.png" alt="img/no-profile.png">
+                    <div class="nama-user">
+                        <div class="nama">Admin</div>
+                        <div class="status">Sedang Turu</div>
+                    </div>
+                </div>
+                <i class='bx bx-log-out cursor-pointer' id="log-out" onclick="logOut()"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="halaman-info">
+        <div class="sampul-novel">
+            <img src="img/gambar-buku.jpeg" alt="" class="novel-card">
+            <h1 class="judul-novel">Tentang Kamu</h1>
+        </div>
+
+        <section class="reading">
+            <p class="isi-novel">
+                Terima kasih untuk kesempatan mengenalmu, itu adalah salah satu anugerah terbesar hidupku. Cinta memang tidak perlu ditemukan, cintalah yang akan menemukan kita. Terima kasih. Nasihat lama itu benar sekali, aku tidak akan menangis karena sesuatu telah berakhir, tapi aku akan tersenyum karena sesuatu itu pernah terjadi. Masa lalu. Rasa sakit. Masa depan. Mimpi-mimpi. Semua akan berlalu, seperti sungai yang mengalir. Maka biarlah hidupku mengalir seperti sungai kehidupan.
+                Atas dasar pekerjaan, Zaman Zulkarnaen harus menelusuri hidup seorang kliennya, perempuan pemegang paspor Inggris yang barusan meninggal dan mewariskan harta yang jumlahnya bisa menyaingi kekayaan Ratu Inggris. Tiga negara, lima kota, beribu luka. Hingga akhirnya Zaman mengerti, bahwa ini bukan sekadar perkara mengerti jalan hidup seorang klien, melainkan pengejawantahan prinsip kuat di tengah cobaan yang terus mendera.
+                Tentang Kamu adalah novel terbaru Tere Liye. Sebuah karya yang tak hanya akan membawa pembacanya menyelami sebuah petualangan yang seru dan sarat emosi, tapi juga memberikan nilai positif sehingga membuat hidup serasa lebih patut disyukuri.
+            </p>
+        </section>
+    </div>
+</body>
+</html>
