@@ -10,6 +10,37 @@ if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
 
 // Retrieve the username from the session
 $username = $_SESSION['username'];
+
+// Check if the form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get the status input value
+    $status = $_POST['user-status'];
+
+    // Connect to the database
+    $koneksi = mysqli_connect("localhost", "root", "", "database");
+
+    // Check the database connection
+    if (mysqli_connect_errno()) {
+        echo "Koneksi database gagal: " . mysqli_connect_error();
+        exit();
+    }
+
+    // Prepare the query to update the status
+    $query = "UPDATE users SET status = '$status' WHERE username = '$username'";
+
+    // Execute the query
+    $result = mysqli_query($koneksi, $query);
+
+    // Check if the update is successful
+    if ($result) {
+        echo "Status berhasil diperbarui.";
+    } else {
+        echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+    }
+
+    // Close the database connection
+    mysqli_close($koneksi);
+}
 ?>
 
 <!DOCTYPE html>
@@ -28,6 +59,7 @@ $username = $_SESSION['username'];
     <link rel="shortcut icon" href="img/logo-shortcut.png" >
 </head>
 <body>
+<form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
     <div class="sidebar">
         <div class="sidebar-logo">
             <div class="logo">
@@ -73,7 +105,7 @@ $username = $_SESSION['username'];
                     <img src="img/no-profile.png" alt="img/no-profile.png">
                     <div class="nama-user">
                         <div class="nama" id="username-id"><div class="nama"><span id="nama-user"></span></div></div>
-                        <div class="status">Sedang Turu</div>
+                        <div class="status"><span id='user-status'></span></div>
                     </div>
                 </div>
                 <i class='bx bx-log-out cursor-pointer' id="log-out" onclick="logout()"></i>
@@ -87,10 +119,16 @@ $username = $_SESSION['username'];
                 <img src="img/no-profile.png" alt="" class="foto-profil">
             </div>
             <div class="user-name">
-                <p><span id="side-nama-user" class="nama-user"></span></p>
+                <p><span id="side-nama-user" class="nama-user"></span></p><br>
+                <!-- <input type="text" id="kirim-status" name="user-status"> -->
+            </div>
+            <div class="user-status">
+                <input type="text" id="kirim-status" name="user-status" placeholder="Status">
+                <button type="submit">Kirim</button>
             </div>
         </div>
     </div>
+    </form>
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="script.js"></script>
@@ -99,6 +137,21 @@ $username = $_SESSION['username'];
             const nama = '<?php echo $username; ?>';
             document.getElementById('nama-user').textContent = nama;
             document.getElementById('side-nama-user').textContent = nama;
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ambil data status dari server menggunakan AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var status = response.status;
+
+                    // Tampilkan status di dalam elemen span
+                    document.getElementById('user-status').innerHTML = status;
+                }
+            };
+            xhr.open("GET", "get_status.php", true); // Ganti "get_status.php" dengan URL yang sesuai
+            xhr.send();
         });
     </script>
 </body>

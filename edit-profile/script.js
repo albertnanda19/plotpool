@@ -31,3 +31,16 @@ function logout() {
         }
     });
 }
+
+let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                var status = response.status;
+
+                // Tampilkan status di dalam elemen span
+                document.getElementById('user-status').innerHTML = status;
+            }
+        };
+        xhr.open("GET", "get_status.php", true); // Ganti "get_status.php" dengan URL yang sesuai
+        xhr.send();
