@@ -68,9 +68,9 @@ $username = $_SESSION['username'];
         <div class="info-profil">
             <div class="profil">
                 <div class="detail-profil">
-                    <img src="img/no-profile.png" alt="img/no-profile.png">
+                    <img src="img/no-profile.png" onclick="direct()" alt="img/no-profile.png">
                     <div class="nama-user">
-                        <div class="nama">Albert</div>
+                        <div class="nama"><span id="nama-user"></span></div>
                         <div class="status">Sedang Turu</div>
                     </div>
                 </div>
@@ -443,5 +443,16 @@ $username = $_SESSION['username'];
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nama = '<?php echo $username; ?>';
+            document.getElementById('nama-user').textContent = nama;
+        });
+
+        function direct()
+        {
+            window.location.href = '../edit-profile/index.php';
+        }
+    </script>
 </body>
 </html>
