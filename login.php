@@ -8,30 +8,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (empty($username) || empty($password)) {
     echo "Please fill in all the fields.";
   } else {
-    // Read user data from file
-    $users = file("sign-up/users.txt", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    $authenticated = false;
-    
-    foreach ($users as $user) {
-      list($storedUsername, $storedPassword) = explode(",", $user);
-      
-      if ($username === $storedUsername && $password === $storedPassword) {
-        $authenticated = true;
-        break;
-      }
+    // Connect to MySQL
+    $conn = new mysqli("localhost", "root", "", "database");
+
+    // Check connection
+    if ($conn->connect_error) {
+      die("Connection failed: " . $conn->connect_error);
     }
+
+    // Prepare SQL statement
+    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND password = ?");
+    $stmt->bind_param("ss", $username, $password);
     
-    if ($authenticated) {
+    // Execute SQL statement
+    $stmt->execute();
+
+    // Check if a row is returned
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 1) {
       // Start session and set username
       session_start();
       $_SESSION['username'] = $username;
-      
+
       // Redirect to welcome page
       header("Location: home/index.php");
       exit;
     } else {
       echo "Invalid username or password.";
     }
+
+    // Close database connection
+    $stmt->close();
+    $conn->close();
   }
 }
 ?>

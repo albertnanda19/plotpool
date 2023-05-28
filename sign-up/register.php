@@ -9,36 +9,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (empty($email) || empty($username) || empty($password)) {
     echo "Please fill in all the fields.";
   } else {
+    // Connect to MySQL
+    $conn = new mysqli("localhost", "root", "", "database");
+
+    // Check connection
+    if ($conn->connect_error) {
+      die("Connection failed: " . $conn->connect_error);
+    }
+
     // Check if email or username already exists
-    $userData = file_get_contents("users.txt");
-    $users = explode("\n", $userData);
-    $emailExists = false;
-    $usernameExists = false;
-    foreach ($users as $user) {
-      $user_data = explode(",", $user);
-      $existing_email = $user_data[2];
-      $existing_username = $user_data[0];
-      if ($email === $existing_email) {
-        $emailExists = true;
-        break;
-      }
-      if ($username === $existing_username) {
-        $usernameExists = true;
-        break;
-      }
-    }
+    $sql = "SELECT * FROM users WHERE email = '$email' OR username = '$username'";
+    $result = $conn->query($sql);
 
-    if ($emailExists) {
-      header('Location: emailExist/index.html');
-    } elseif ($usernameExists) {
-      header('Location: usernameExist/index.html');
+    if ($result->num_rows > 0) {
+      // Email or username already exists
+      echo "Email or username already exists.";
     } else {
-      // Save user data to file
-      $userData .= $username . ',' . $password . ',' . $email . "\n";
-      file_put_contents("users.txt", $userData);
-
-      header('Location: clone-page/index.html');
+      // Save user data to database
+      $sql = "INSERT INTO users (username, password, email) VALUES ('$username', '$password', '$email')";
+      if ($conn->query($sql) === TRUE) {
+        // User data saved successfully
+        header('Location: clone-page/index.html');
+      } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+      }
     }
+
+    // Close database connection
+    $conn->close();
   }
 }
 ?>
