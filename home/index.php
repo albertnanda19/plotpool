@@ -2,11 +2,14 @@
 session_start();
 
 // Check if the user is logged in
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
   // Redirect to the login page
     header("Location: ../index.html");
     exit();
 }
+
+// Retrieve the username from the session
+$username = $_SESSION['username'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
