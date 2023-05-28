@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usernameExists = false;
     foreach ($users as $user) {
       $user_data = explode(",", $user);
-      $existing_email = $user_data[0];
-      $existing_username = $user_data[1];
+      $existing_email = $user_data[2];
+      $existing_username = $user_data[0];
       if ($email === $existing_email) {
         $emailExists = true;
         break;
@@ -29,40 +29,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($emailExists) {
-      echo <<<HTML
-      <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-      <script>
-        swal({
-          title: "Registration Failed!",
-          text: "Email is already registered.",
-          icon: "error",
-          button: "OK",
-        });
-      </script>
-HTML;
-    } else if ($usernameExists) {
-      echo <<<HTML
-      <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-      <script>
-        swal({
-          title: "Registration Failed!",
-          text: "Username is already taken.",
-          icon: "error",
-          button: "OK",
-        });
-      </script>
-HTML;
+      header('Location: emailExist/index.html');
+    } elseif ($usernameExists) {
+      header('Location: usernameExist/index.html');
     } else {
-      // Store user data in a file
-      $userData = "$username,$password, $email\n";
-      file_put_contents("users.txt", $userData, FILE_APPEND);
+      // Save user data to file
+      $userData .= $username . ',' . $password . ',' . $email . "\n";
+      file_put_contents("users.txt", $userData);
 
-      echo <<<HTML
-      <script>
-        window.location.href = 'clone-page/index.html';
-      </script>
-      HTML;
-      }
+      header('Location: clone-page/index.html');
     }
+  }
 }
 ?>
