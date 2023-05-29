@@ -45,3 +45,7 @@ function logout() {
     });
 }
 
+function direct()
+{
+    window.location.href = '../edit-profile/index.php';
+}

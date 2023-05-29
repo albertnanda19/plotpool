@@ -135,28 +135,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </p>
 
                         <div class="detail-action">
-                            <!-- <button class="share">
-                                <ion-icon name="share-social"></ion-icon>
-                                <span>Share</span>
-                            </button> -->
-
-                            <!-- <button class="btn btn-read">
-                                <a href="#">
-                                    <ion-icon name="play"></ion-icon>
-                                    <span>See More</span>
-                                </a>
-                            </button> -->
                             <button class="btn btn-read" onclick="seeMore()">
                                     <ion-icon name="play"></ion-icon>
                                     <span>See More</span>
                             </button>
                         </div>
-
-                        <!-- <a href="#" download class="popular-title-download-btn">
-                            <span>Download</span>
-                            <ion-icon name="download-outline"></ion-icon>
-                        </a> -->
-
                     </div>
                 </div>
             </div>
@@ -494,9 +477,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     document.getElementById('user-status').innerHTML = status;
                 }
             };
-            xhr.open("GET", "../get_status.php", true); // Ganti "get_status.php" dengan URL yang sesuai
+            xhr.open("GET", "../get_status.php", true); 
             xhr.send();
         });
+
+        function direct()
+        {
+            window.location.href = '../edit-profile/index.php';
+        }
     </script>
 </body>
 </html>

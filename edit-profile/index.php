@@ -11,6 +11,9 @@ if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
 // Retrieve the username from the session
 $username = $_SESSION['username'];
 
+// Upload foto profi
+
+
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get the status input value
@@ -115,9 +118,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="halaman-info">
         <div class="container">
-            <div class="profile-picture">
-                <img src="img/no-profile.png" alt="" class="foto-profil">
-            </div>
+            <form method="POST" action="index.php" enctype="multipart/form-data">
+                <div class="profile-picture">
+                    <img id="foto-profil" src="img/no-profile.png" alt="" class="foto-profil">
+                    <i class="bx bx-pencil edit-photo-icon" onclick="uploadProfilePicture()"></i>
+                    <input type="file" id="profile-picture-input" name="profile_picture" style="display: none;" onchange="handleFileInput(event)">
+                </div>
+                <input type="submit" value="Simpan">
+            </form>
             <div class="user-name">
                 <p><span id="side-nama-user" class="nama-user"></span></p><br>
                 <!-- <input type="text" id="kirim-status" name="user-status"> -->
@@ -153,6 +161,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             xhr.open("GET", "../get_status.php", true); // Ganti "get_status.php" dengan URL yang sesuai
             xhr.send();
         });
+
+        function uploadProfilePicture() {
+            // Trigger the file input
+            document.getElementById('profile-picture-input').click();
+        }
+
+        // Function to handle file input change
+        function handleFileInput(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                // Display the selected image
+                const imgElement = document.getElementById('foto-profil');
+                imgElement.src = e.target.result;
+            };
+
+            // Read the uploaded file as a Data URL
+            reader.readAsDataURL(file);
+        }
     </script>
 </body>
 </html>
