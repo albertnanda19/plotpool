@@ -150,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     document.getElementById('user-status').innerHTML = status;
                 }
             };
-            xhr.open("GET", "get_status.php", true); // Ganti "get_status.php" dengan URL yang sesuai
+            xhr.open("GET", "../get_status.php", true); // Ganti "get_status.php" dengan URL yang sesuai
             xhr.send();
         });
     </script>
