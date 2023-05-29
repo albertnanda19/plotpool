@@ -3,7 +3,7 @@ session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
-  // Redirect to the login page
+    // Redirect to the login page
     header("Location: ../index.html");
     exit();
 }
@@ -11,45 +11,191 @@ if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
 // Retrieve the username from the session
 $username = $_SESSION['username'];
 
-// Upload foto profi
-
+// Function to delete the profile picture file
+function deleteProfilePictureFile($filePath) {
+    // Check if the file exists
+    if (file_exists($filePath)) {
+        // Delete the file
+        if (unlink($filePath)) {
+            echo "Foto profil berhasil dihapus.";
+        } else {
+            echo "Gagal menghapus foto profil.";
+        }
+    } else {
+        echo "File foto profil tidak ditemukan.";
+    }
+}
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the status input value
-    $status = $_POST['user-status'];
+    // Check if the file was uploaded without errors
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+        // Get the file details
+        $file = $_FILES['profile_picture'];
+        $fileName = $file['name'];
+        $fileTmpPath = $file['tmp_name'];
 
-    // Connect to the database
-    $koneksi = mysqli_connect("localhost", "root", "", "database");
+        // Get the file extension
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-    // Check the database connection
-    if (mysqli_connect_errno()) {
-        echo "Koneksi database gagal: " . mysqli_connect_error();
-        exit();
+        // Generate a unique file name
+        $newFileName = uniqid('', true) . '.' . $fileExtension;
+
+        // Specify the directory to save the uploaded file
+        $uploadDirectory = 'profile_photos/';
+
+        // Create the full path to save the file
+        $uploadFilePath = $uploadDirectory . $newFileName;
+
+        // Check if the file is an image
+        $imageSize = getimagesize($fileTmpPath);
+        if ($imageSize === false) {
+            echo 'File yang diunggah bukan gambar.';
+            exit();
+        }
+
+        // Check the file size (limit to 5 MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            echo 'Ukuran file terlalu besar.';
+            exit();
+        }
+
+        // Limit allowed file types (e.g., JPEG, PNG)
+        $allowedFormats = ['jpg', 'jpeg', 'png'];
+        if (!in_array($fileExtension, $allowedFormats)) {
+            echo 'Hanya file dengan format JPG, JPEG, atau PNG yang diperbolehkan.';
+            exit();
+        }
+
+        // Move the uploaded file to the destination directory
+        if (move_uploaded_file($fileTmpPath, $uploadFilePath)) {
+            // Connect to the database
+            $koneksi = mysqli_connect("localhost", "root", "", "database");
+
+            // Check the database connection
+            if (mysqli_connect_errno()) {
+                echo "Koneksi database gagal: " . mysqli_connect_error();
+                exit();
+            }
+
+            // Prepare the query to retrieve the profile picture path
+            $query = "SELECT profile_photo FROM users WHERE username = '$username'";
+
+            // Execute the query
+            $result = mysqli_query($koneksi, $query);
+
+            // Check if the query is successful and if a profile picture exists
+            if ($result && mysqli_num_rows($result) > 0) {
+                $row = mysqli_fetch_assoc($result);
+                $profilePicture = $row['profile_photo'];
+
+                // Delete the existing profile picture file
+                if (!empty($profilePicture)) {
+                    deleteProfilePictureFile($profilePicture);
+                }
+            }
+
+            // Prepare the query to update the profile picture path
+            $query = "UPDATE users SET profile_photo = '$uploadFilePath' WHERE username = '$username'";
+
+            // Execute the query
+            $result = mysqli_query($koneksi, $query);
+
+            // Check if the update is successful
+            if ($result) {
+                echo "Foto profil berhasil diperbarui.";
+            } else {
+                echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+            }
+
+            // Close the database connection
+            mysqli_close($koneksi);
+        } else {
+            echo 'Terjadi kesalahan saat mengunggah file.';
+        }
     }
 
-    // Prepare the query to update the status
-    $query = "UPDATE users SET status = '$status' WHERE username = '$username'";
+    // Check if the user status is submitted
+    if (isset($_POST['submit-status'])) {
+        $status = $_POST['user-status'];
 
-    // Execute the query
-    $result = mysqli_query($koneksi, $query);
+        // Connect to the database
+        $koneksi = mysqli_connect("localhost", "root", "", "database");
 
-    // Check if the update is successful
-    if ($result) {
-        echo "Status berhasil diperbarui.";
-    } else {
-        echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+        // Check the database connection
+        if (mysqli_connect_errno()) {
+            echo "Koneksi database gagal: " . mysqli_connect_error();
+            exit();
+        }
+
+        // Prepare the query to update the status
+        $query = "UPDATE users SET status = '$status' WHERE username = '$username'";
+
+        // Execute the query
+        $result = mysqli_query($koneksi, $query);
+
+        // Check if the update is successful
+        if ($result) {
+            echo "Status berhasil diperbarui.";
+        } else {
+            echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+        }
+
+        // Close the database connection
+        mysqli_close($koneksi);
     }
 
-    // Close the database connection
-    mysqli_close($koneksi);
+    // Check if the delete profile picture button is clicked
+    if (isset($_POST['delete-picture'])) {
+        // Connect to the database
+        $koneksi = mysqli_connect("localhost", "root", "", "database");
+
+        // Check the database connection
+        if (mysqli_connect_errno()) {
+            echo "Koneksi database gagal: " . mysqli_connect_error();
+            exit();
+        }
+
+        // Prepare the query to retrieve the profile picture path
+        $query = "SELECT profile_photo FROM users WHERE username = '$username'";
+
+        // Execute the query
+        $result = mysqli_query($koneksi, $query);
+
+        // Check if the query is successful and if a profile picture exists
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $profilePicture = $row['profile_photo'];
+
+            // Delete the existing profile picture file
+            if (!empty($profilePicture)) {
+                deleteProfilePictureFile($profilePicture);
+            }
+
+            // Prepare the query to update the profile picture path to empty
+            $query = "UPDATE users SET profile_photo = '' WHERE username = '$username'";
+
+            // Execute the query
+            $result = mysqli_query($koneksi, $query);
+
+            // Check if the update is successful
+            if ($result) {
+                echo "Foto profil berhasil dihapus.";
+            } else {
+                echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+            }
+        }
+
+        // Close the database connection
+        mysqli_close($koneksi);
+    }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlotPool</title>
@@ -62,8 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="shortcut icon" href="img/logo-shortcut.png" >
 </head>
 <body>
-<form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-    <div class="sidebar">
+<div class="sidebar">
         <div class="sidebar-logo">
             <div class="logo">
                 <img class="gambar-logo" src="img/logo.png" alt="">
@@ -105,7 +250,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="info-profil">
             <div class="profil">
                 <div class="detail-profil">
-                    <img src="img/no-profile.png" alt="img/no-profile.png">
+                    <!-- <img src="img/no-profile.png" alt="img/no-profile.png"> -->
+                    <?php
+                    // Connect to the database
+                        $koneksi = mysqli_connect("localhost", "root", "", "database");
+
+                        // Check the database connection
+                        if (mysqli_connect_errno()) {
+                            echo "Koneksi database gagal: " . mysqli_connect_error();
+                            exit();
+                        }
+
+                        // Prepare the query to retrieve the profile picture path
+                        $query = "SELECT profile_photo FROM users WHERE username = '$username'";
+
+                        // Execute the query
+                        $result = mysqli_query($koneksi, $query);
+
+                        // Check if the query is successful and if a profile picture exists
+                        if ($result && mysqli_num_rows($result) > 0) {
+                            $row = mysqli_fetch_assoc($result);
+                            $profilePicture = $row['profile_photo'];
+                        } else {
+                            $profilePicture = '';
+                        }
+
+                        // Close the database connection
+                        mysqli_close($koneksi);
+                    ?>
+                    <?php
+                        if (isset($profilePicture) && !empty($profilePicture)) {
+                            echo '<img id="foto-profil" src="' . $profilePicture . '" alt="" class="foto-profil">';
+                        } else {
+                            echo '<img id="foto-profil" src="img/no-profile.png" alt="" class="foto-profil">';
+                        }
+                    ?>
                     <div class="nama-user">
                         <div class="nama" id="username-id"><div class="nama"><span id="nama-user"></span></div></div>
                         <div class="status"><span id='user-status'></span></div>
@@ -118,28 +297,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="halaman-info">
         <div class="container">
-            <form method="POST" action="index.php" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data" id="profile-picture-form">
                 <div class="profile-picture">
-                    <img id="foto-profil" src="img/no-profile.png" alt="" class="foto-profil">
-                    <i class="bx bx-pencil edit-photo-icon" onclick="uploadProfilePicture()"></i>
-                    <input type="file" id="profile-picture-input" name="profile_picture" style="display: none;" onchange="handleFileInput(event)">
+                    <?php
+                    // Connect to the database
+                        $koneksi = mysqli_connect("localhost", "root", "", "database");
+
+                        // Check the database connection
+                        if (mysqli_connect_errno()) {
+                            echo "Koneksi database gagal: " . mysqli_connect_error();
+                            exit();
+                        }
+
+                        // Prepare the query to retrieve the profile picture path
+                        $query = "SELECT profile_photo FROM users WHERE username = '$username'";
+
+                        // Execute the query
+                        $result = mysqli_query($koneksi, $query);
+
+                        // Check if the query is successful and if a profile picture exists
+                        if ($result && mysqli_num_rows($result) > 0) {
+                            $row = mysqli_fetch_assoc($result);
+                            $profilePicture = $row['profile_photo'];
+                        } else {
+                            $profilePicture = '';
+                        }
+
+                        // Close the database connection
+                        mysqli_close($koneksi);
+                    ?>
+                    <?php
+                        if (isset($profilePicture) && !empty($profilePicture)) {
+                            echo '<img id="foto-profil" src="' . $profilePicture . '" alt="" class="foto-profil">';
+                        } else {
+                            echo '<img id="foto-profil" src="img/no-profile.png" alt="" class="foto-profil">';
+                        }
+                    ?>
+                    <!-- <input type="file" id="profile-picture-input" name="profile_picture" onchange="handleFileInput(event)">
+                    <button type="submit" name="submit-picture">Simpan Foto Profil</button>
+                    <button type="submit" name="delete-picture">Hapus Foto Profil</button> -->
                 </div>
-                <input type="submit" value="Simpan">
+                <input type="file" id="profile-picture-input" name="profile_picture" onchange="handleFileInput(event)">
+                <button type="submit" name="submit-picture">Simpan Foto Profil</button>
+                <button type="submit" name="delete-picture">Hapus Foto Profil</button>
             </form>
             <div class="user-name">
                 <p><span id="side-nama-user" class="nama-user"></span></p><br>
                 <!-- <input type="text" id="kirim-status" name="user-status"> -->
             </div>
-            <div class="user-status">
-                <input type="text" id="kirim-status" name="user-status" placeholder="Status">
-                <button type="submit">Kirim</button>
-            </div>
+            <form method="POST" id="status-form">
+                <div class="user-status">
+                    <input type="text" id="kirim-status" name="user-status" placeholder="Status">
+                    <button type="submit" name="submit-status">Kirim</button>
+                </div>
+                <!-- <div class="status">
+                    Status: <span id="user-status"></span>
+                </div> -->
+            </form>
         </div>
     </div>
-    </form>
+    
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-    <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const nama = '<?php echo $username; ?>';
@@ -162,23 +381,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             xhr.send();
         });
 
-        function uploadProfilePicture() {
-            // Trigger the file input
-            document.getElementById('profile-picture-input').click();
-        }
-
         // Function to handle file input change
         function handleFileInput(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
 
-            reader.onload = function (e) {
-                // Display the selected image
-                const imgElement = document.getElementById('foto-profil');
-                imgElement.src = e.target.result;
-            };
+            reader.onload = function(e) {
+                const img = document.getElementById('foto-profil');
+                img.src = e.target.result;
+            }
 
-            // Read the uploaded file as a Data URL
             reader.readAsDataURL(file);
         }
     </script>

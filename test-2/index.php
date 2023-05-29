@@ -11,7 +11,20 @@ if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
 // Retrieve the username from the session
 $username = $_SESSION['username'];
 
-// Upload foto profil
+// Function to delete the profile picture file
+function deleteProfilePictureFile($filePath) {
+    // Check if the file exists
+    if (file_exists($filePath)) {
+        // Delete the file
+        if (unlink($filePath)) {
+            echo "Foto profil berhasil dihapus.";
+        } else {
+            echo "Gagal menghapus foto profil.";
+        }
+    } else {
+        echo "File foto profil tidak ditemukan.";
+    }
+}
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -65,6 +78,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit();
             }
 
+            // Prepare the query to retrieve the profile picture path
+            $query = "SELECT profile_photo FROM users WHERE username = '$username'";
+
+            // Execute the query
+            $result = mysqli_query($koneksi, $query);
+
+            // Check if the query is successful and if a profile picture exists
+            if ($result && mysqli_num_rows($result) > 0) {
+                $row = mysqli_fetch_assoc($result);
+                $profilePicture = $row['profile_photo'];
+
+                // Delete the existing profile picture file
+                if (!empty($profilePicture)) {
+                    deleteProfilePictureFile($profilePicture);
+                }
+            }
+
             // Prepare the query to update the profile picture path
             $query = "UPDATE users SET profile_photo = '$uploadFilePath' WHERE username = '$username'";
 
@@ -85,33 +115,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Update status
-    $status = $_POST['user-status'];
+    // Check if the user status is submitted
+    if (isset($_POST['submit-status'])) {
+        $status = $_POST['user-status'];
 
-    // Connect to the database
-    $koneksi = mysqli_connect("localhost", "root", "", "database");
+        // Connect to the database
+        $koneksi = mysqli_connect("localhost", "root", "", "database");
 
-    // Check the database connection
-    if (mysqli_connect_errno()) {
-        echo "Koneksi database gagal: " . mysqli_connect_error();
-        exit();
+        // Check the database connection
+        if (mysqli_connect_errno()) {
+            echo "Koneksi database gagal: " . mysqli_connect_error();
+            exit();
+        }
+
+        // Prepare the query to update the status
+        $query = "UPDATE users SET status = '$status' WHERE username = '$username'";
+
+        // Execute the query
+        $result = mysqli_query($koneksi, $query);
+
+        // Check if the update is successful
+        if ($result) {
+            echo "Status berhasil diperbarui.";
+        } else {
+            echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+        }
+
+        // Close the database connection
+        mysqli_close($koneksi);
     }
 
-    // Prepare the query to update the status
-    $query = "UPDATE users SET status = '$status' WHERE username = '$username'";
+    // Check if the delete profile picture button is clicked
+    if (isset($_POST['delete-picture'])) {
+        // Connect to the database
+        $koneksi = mysqli_connect("localhost", "root", "", "database");
 
-    // Execute the query
-    $result = mysqli_query($koneksi, $query);
+        // Check the database connection
+        if (mysqli_connect_errno()) {
+            echo "Koneksi database gagal: " . mysqli_connect_error();
+            exit();
+        }
 
-    // Check if the update is successful
-    if ($result) {
-        echo "Status berhasil diperbarui.";
-    } else {
-        echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+        // Prepare the query to retrieve the profile picture path
+        $query = "SELECT profile_photo FROM users WHERE username = '$username'";
+
+        // Execute the query
+        $result = mysqli_query($koneksi, $query);
+
+        // Check if the query is successful and if a profile picture exists
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $profilePicture = $row['profile_photo'];
+
+            // Delete the existing profile picture file
+            if (!empty($profilePicture)) {
+                deleteProfilePictureFile($profilePicture);
+            }
+
+            // Prepare the query to update the profile picture path to empty
+            $query = "UPDATE users SET profile_photo = '' WHERE username = '$username'";
+
+            // Execute the query
+            $result = mysqli_query($koneksi, $query);
+
+            // Check if the update is successful
+            if ($result) {
+                echo "Foto profil berhasil dihapus.";
+            } else {
+                echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+            }
+        }
+
+        // Close the database connection
+        mysqli_close($koneksi);
     }
-
-    // Close the database connection
-    mysqli_close($koneksi);
 }
 ?>
 
@@ -120,9 +197,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 </head>
 <body>
-<form method="POST" enctype="multipart/form-data" id="profile-picture-form">
+    <form method="POST" enctype="multipart/form-data" id="profile-picture-form">
         <div class="profile-picture">
-            <!-- <img id="foto-profil" src="img/no-profile.png" alt="" class="foto-profil"> -->
             <?php
             // Connect to the database
             $koneksi = mysqli_connect("localhost", "root", "", "database");
@@ -158,20 +234,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             ?>
             <input type="file" id="profile-picture-input" name="profile_picture" onchange="handleFileInput(event)">
-            <button type="submit">Simpan Foto Profil</button>
-            <button type="button" onclick="deleteProfilePicture()">Hapus Foto Profil</button>
+            <button type="submit" name="submit-picture">Simpan Foto Profil</button>
+            <button type="submit" name="delete-picture">Hapus Foto Profil</button>
         </div>
     </form>
 
     <form method="POST" id="status-form">
         <div class="user-status">
             <input type="text" id="kirim-status" name="user-status" placeholder="Status">
-            <button type="submit">Kirim</button>
+            <button type="submit" name="submit-status">Kirim</button>
         </div>
         <div class="status">
             Status: <span id="user-status"></span>
         </div>
-
     </form>
 
     <script>
@@ -196,31 +271,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const file = event.target.files[0];
             const reader = new FileReader();
 
-            reader.onload = function (e) {
-                // Display the selected image
-                const imgElement = document.getElementById('foto-profil');
-                imgElement.src = e.target.result;
-            };
-
-            // Read the uploaded file as a Data URL
-            reader.readAsDataURL(file);
-        }
-
-        // Function to delete profile picture
-        function deleteProfilePicture() {
-            if (confirm("Anda yakin ingin menghapus foto profil?")) {
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        var response = xhr.responseText;
-                        alert(response);
-                        // Reset the profile picture
-                        document.getElementById('foto-profil').src = 'img/no-profile.png';
-                    }
-                };
-                xhr.open("GET", "delete_profile_pictures.php", true);
-                xhr.send();
+            reader.onload = function(e) {
+                const img = document.getElementById('foto-profil');
+                img.src = e.target.result;
             }
+
+            reader.readAsDataURL(file);
         }
     </script>
 </body>
