@@ -5,8 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        #pdfViewer{
+            width: 100%;
+            height: 600px;
+        }
+    </style>
 </head>
 <body>
-    <embed src="../novel/Sleepaholic Jatuh Cinta by Astrid Zeng.pdf" type="application/pdf" width='100%' height="900px">
+<iframe id="pdfViewer" src= "../novel/Sleepaholic Jatuh Cinta by Astrid Zeng.pdf" frameborder="0"></iframe> 
+</script>
 </body>
 </html>
