@@ -101,7 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="profil">
                 <div class="detail-profil">
                     <img src="img/no-profile.png" onclick="direct()" alt="img/no-profile.png">
-                    <!-- handle status dan username -->
                     <div class="nama-user">
                         <div class="nama" id="username-id"><div class="nama"><span id="nama-user"></span></div></div>
                         <div class="status"><span id='user-status'></span></div>
@@ -116,7 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h3>Popular Title</h3>
         <section class="popular-title">
             <div class="popular-title-box">
-                <!-- <img src="img/popular-title-novel-bg-1.jpeg" alt="" class="popular-title-bg"> -->
                 <figure class="popular-title-img">
                     <img src="img/popular-title-novel-1.jpeg" alt="">
                 </figure>

@@ -11,7 +11,7 @@ body{
     position: relative;
     min-height: 100vh;
     width: 100%;
-    background-color: #6C4AB6;
+    background-color: #292677;
 }
 
 .swal-modal{
@@ -28,7 +28,7 @@ body{
 
 html{
     scroll-behavior: smooth;
-    background-color: #6C4AB6;
+    background-color: #292677 ;
 }
 
 .sidebar{
@@ -37,7 +37,7 @@ html{
     left: 0;
     height: 100%;
     width: 240px;
-    background: #8D72E1;
+    background: #292677 ;
     padding: 6px 14px;
     transition: all 0.5s ease;
 }
@@ -179,7 +179,7 @@ html{
     height: 60px;
     background: none;
     transition: all 0.4s ease;
-    background: #8D9EFF;
+    background: #171542 ;
 }
 
 .sidebar .info-profil .profil .bx{
@@ -232,7 +232,7 @@ html{
 
 .halaman-info{
     position: absolute;
-    background-color: #6C4AB6;
+    background-color: #292677 ;
     height: 100%;
     width: calc(100% - 78px);
     left: 78px;
@@ -256,7 +256,7 @@ html{
 /* Reading Page */
 
 .sampul-novel{
-    background: linear-gradient(to bottom, rgba(0,0,0,0), #6C4AB6), url('img/cover.jpg') no-repeat;
+    background: linear-gradient(to bottom, rgba(0,0,0,0), #292677 ), url('img/cover.jpg') no-repeat;
     background-size: cover;
     height: 70vh;
     padding: 50px;
