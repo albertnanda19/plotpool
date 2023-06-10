@@ -5,15 +5,15 @@ window.location.href = "../visit-novel/index.html";
 };
 
 function toAboutus(){
-    window.location.href = "../about-developers-page/index.html";
+    window.location.href = "../about-developers-page/index.php";
 }
 
 function toHome(){
-    window.location.href = "../home/index.html";
+    window.location.href = "../home/index.php";
 }
 
 function toTitles(){
-    window.location.href = "../titles-page/index.html";
+    window.location.href = "../titles-page/index.php";
 }
 
 document.getElementById("log-out").addEventListener("click", logout);
@@ -27,12 +27,10 @@ function logout() {
     })
     .then((willLogout) => {
         if (willLogout) {
-            // Mengirim permintaan POST ke file PHP untuk logout
-            fetch('../logout.php', {
+            fetch('../function_php/logout.php', {
                 method: 'POST'
             })
             .then(response => {
-                // Mengarahkan pengguna ke halaman login atau halaman tujuan setelah logout
                 window.location.href = "../index.html";
             })
             .catch(error => {

@@ -14,7 +14,7 @@
             if (unlink($filePath)) {
                 echo <<<HTML
                     <script>
-                        swal
+                        alert
                     </script>
                 HTML
                 ;
@@ -36,7 +36,7 @@
 
             $newFileName = uniqid('', true) . '.' . $fileExtension;
 
-            $uploadDirectory = 'profile_photos/';
+            $uploadDirectory = '../profile_photos/';
 
             $uploadFilePath = $uploadDirectory . $newFileName;
             $imageSize = getimagesize($fileTmpPath);
@@ -150,6 +150,7 @@
 ?>
 
 <?php
+    $username = $_SESSION['username'];
     $koneksi = mysqli_connect("localhost", "root", "", "database");
     if (mysqli_connect_errno()) {
         echo "Koneksi database gagal: " . mysqli_connect_error();
@@ -161,9 +162,22 @@
     if ($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         $profilePicture = $row['profile_photo'];
-        } else {
+    } else {
             $profilePicture = '';
-        }
+    }
+
+    $query_status = "SELECT status FROM users WHERE username = '$username'";
+    $result_status = mysqli_query($koneksi, $query_status);
+
+    if ($result_status) {
+        $row = mysqli_fetch_assoc($result_status);
+        $status = $row['status'];
+    } else {
+        $response = array('error' => 'Failed to retrieve status: ' . mysqli_error($koneksi));
+        echo json_encode($response);
+    }
+
+    mysqli_close($koneksi);
 ?>
 
 <!DOCTYPE html>
@@ -224,13 +238,13 @@
                     <input type="text" placeholder="Search Novel...">
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="../home/index.php">
                         <i class='bx bx-home'></i>
                         <span class="nama-menu" onclick="toHome()">Home</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="../titles-page/index.php">
                         <i class="bx bx-book-open"></i>
                         <span class="nama-menu" onclick="toTitles()">Title</span>
                     </a>
@@ -242,7 +256,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="../about-developers-page/index.php">
                         <i class="fa fa-info"></i>
                         <span class="nama-menu">About Us</span>
                     </a>
@@ -255,14 +269,14 @@
                         <!-- <img src="img/no-profile.png" alt="img/no-profile.png"> -->
                         <?php
                             if (isset($profilePicture) && !empty($profilePicture)) {
-                                echo '<img id="foto-profil" src="' . $profilePicture . '" alt="" class="foto-profil">';
+                                echo '<img id="foto-profil" src="../profile_photos/' . $profilePicture . '" alt="" class="foto-profil">';
                             } else {
                                 echo '<img id="foto-profil" src="img/no-profile.png" alt="" class="foto-profil">';
                             }
                         ?>
                         <div class="nama-user">
-                            <div class="nama" id="username-id"><div class="nama"><span id="nama-user"></span></div></div>
-                            <div class="status"><span id='user-status'></span></div>
+                            <div class="nama" id="username-id"><div class="nama"><?php echo $username; ?></div></div>
+                            <div class="status"><?php echo $status; ?></div>
                         </div>
                     </div>
                     <i class='bx bx-log-out cursor-pointer' id="log-out" onclick="logout()"></i>
@@ -275,27 +289,6 @@
         <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
         <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const nama = '<?php echo $username; ?>';
-                document.getElementById('nama-user').textContent = nama;
-                document.getElementById('side-nama-user').textContent = nama;
-            });
-            document.addEventListener('DOMContentLoaded', function() {
-                // Ambil data status dari server menggunakan AJAX
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4 && xhr.status === 200) {
-                        let response = JSON.parse(xhr.responseText);
-                        let status = response.status;
-
-                        // Tampilkan status di dalam elemen span
-                        document.getElementById('user-status').innerHTML = status;
-                    }
-                };
-                xhr.open("GET", "../get_status.php", true); 
-                xhr.send();
-            });
-
             function handleFileInput(event) {
                 const file = event.target.files[0];
                 const reader = new FileReader();
@@ -304,7 +297,6 @@
                     const img = document.getElementById('foto-profil');
                     img.src = e.target.result;
                 }
-
                 reader.readAsDataURL(file);
             }
         </script>
