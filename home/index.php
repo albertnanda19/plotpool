@@ -44,7 +44,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlotPool</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="homestyle.css">
     <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@1,900&family=Nunito:ital,wght@0,400;0,700;1,400&family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -78,10 +78,45 @@
                 </a>
             </li>
             <li>
-                <a href="#">
-                    <i class="bx bx-crosshair"></i>
-                    <span class="nama-menu">Random</span>
-                </a>
+                <?php 
+                    $koneksi = new mysqli("localhost", "root", "", "database");
+
+                    if($koneksi->connect_error)
+                    {
+                        die("Koneksi gagal: " . $koneksi->connect_error);
+                    }
+
+                    $query = "SELECT id FROM novel";
+                    $result = $koneksi->query($query);
+
+                    if($result)
+                    {
+                        if($result->num_rows > 0)
+                        {
+                            $novelID = [];
+
+                            while ($row = $result->fetch_assoc())
+                            {
+                                $novelID[] = $row['id'];
+                            }
+
+                            $result->free();
+
+                            shuffle($novelID);
+
+                            $randomNovelID = $novelID[0];
+
+                            echo '<a href="../info_novel/index.php?id=' . $randomNovelID . '">';
+                            echo '<i class="bx bx-crosshair"></i>';
+                            echo '<span class="nama-menu">Random</span>';
+                            echo '</a>';
+                        }
+                    }else{
+                        echo "<p>Terjadi kesalahan saat menjalankan query" . $koneksi->error . "</p>";
+                    }
+
+                    $koneksi->close();
+                ?>
             </li>
             <li>
                 <a href="../about-developers-page/index.php">
@@ -97,9 +132,9 @@
                     <!-- <img src="img/no-profile.png" onclick="direct()" alt="img/no-profile.png"> -->
                     <?php
                         if (isset($profilePicture) && !empty($profilePicture)) {
-                            echo '<img id="foto-profil" src="' . $profilePicture . '" alt="" class="foto-profil">';
+                            echo '<img id="foto-profil" src="' . $profilePicture . '" onclick="direct()" alt="" class="foto-profil">';
                         } else {
-                            echo '<img id="foto-profil" src="img/no-profile.png" alt="" class="foto-profil">';
+                            echo '<img id="foto-profil" src="img/no-profile.png" onclick="direct()" alt="" class="foto-profil">';
                         }
                     ?>
                     <div class="nama-user">
@@ -151,296 +186,45 @@
                 </div>
             </div>
             <div class="novels-grid">
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <a href=""><img src="img/latest-novel-1.jpg" alt="" class="card-img"></a>
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
+                <?php 
+                    $koneksi = new mysqli("localhost", "root", "", "database");
 
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-                        </div>
-                    </div>
+                    if($koneksi->connect_error)
+                    {
+                        die("Koneksi Gagal: ".$koneksi->connect_error);
+                    }
 
-                    <div class="novels-body">
-                        <h3 class="novels-title">Twist of Fate</h3>
+                    $sql = "SELECT * FROM novel ORDER BY id DESC";
+                    $result = $koneksi->query($sql);
 
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
+                    if($result->num_rows > 0)
+                    {
+                        while($row = $result->fetch_assoc())
+                        {
+                            $judul = $row["judul"];
+                            $genre = $row["genre"];
+                            $tahun_terbit = $row["tahun_terbit"];
+                            $sampul = $row["sampul"];
+                            $id = $row["id"];
 
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-2.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Alita @Heart</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-3.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Clement</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-4.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Twist of Fate</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-5.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Twist of Fate</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-6.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Twist of Fate</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-7.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Twist of Fate</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-8.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Twist of Fate</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-9.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Twist of Fate</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="novels-card">
-                    <div class="novels-head">
-                        <img src="img/latest-novel-10.jpg" alt="" class="card-img">
-
-                        <div class="novels-overlay">
-                            <div class="novels-bookmark">
-                                <ion-icon name="bookmark-outline"></ion-icon>
-                            </div>
-
-                            <div class="novels-rating">
-                                <ion-icon name="star-outline"></ion-icon>
-                                <span>6.4</span>
-                            </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
-                        </div>
-                    </div>
-
-                    <div class="novels-body">
-                        <h3 class="novels-title">Twist of Fate</h3>
-
-                        <div class="novels-info">
-                            <span class="genre">Adult Romance</span>
-                            <span class="year">2021</span>
-                        </div>
-                    </div>
-                </div>
+                            echo '<div class="novels-card">';
+                            echo '<div class="novels-head">';
+                            echo '<a href="../info_novel/index.php?id=' . $id . '"><img src="../info_novel/sampul/'. $sampul .'" alt="" class="card-img"></a>';
+                            echo '<div class="novels-overlay">';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '<div class="novels-body">';
+                            echo '<h3 class="novels-title">' . $judul . '</h3>';
+                            echo '<div class="novels-info">';
+                            echo '<span class="genre">' . $genre . '</span>';
+                            echo '<span class="year">' . $tahun_terbit . '</span>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '</div>';
+                        }
+                    }
+                    $koneksi->close();
+                ?>
             </div>
         </section>
     </div>
@@ -448,7 +232,7 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="script.js"></script>
+    <script src="../function_js/script.js"></script>
     <script>
         function direct()
         {
