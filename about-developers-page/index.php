@@ -26,7 +26,7 @@
 
     if($hasil_status)
     {
-        $row_status = mysqli_fetch_assoc($hasil_status);
+        $row_status = mysqli_fetch_assoc($hasil_status);    
         $status = $row_status['status'];
     }else{
         $response = array('error' => 'Gagal menampilkan status: '.mysqli_error($koneksi));
