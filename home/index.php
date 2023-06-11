@@ -1,46 +1,40 @@
 <?php
-session_start();
+    session_start();
 
-// Check if the user is logged in
-if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
-  // Redirect to the login page
-    header("Location: ../index.html");
-    exit();
-}
+    if (!isset($_SESSION['username']) || empty($_SESSION['username'])) {
+        header("Location: ../index.html");
+        exit();
+    }
 
-// Retrieve the username from the session
-$username = $_SESSION['username'];
-
-// Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the status input value
-    $status = $_POST['user-status'];
-
-    // Connect to the database
+    $username = $_SESSION['username'];
     $koneksi = mysqli_connect("localhost", "root", "", "database");
-
-    // Check the database connection
     if (mysqli_connect_errno()) {
         echo "Koneksi database gagal: " . mysqli_connect_error();
         exit();
     }
-
-    // Prepare the query to update the status
-    $query = "UPDATE users SET status = '$status' WHERE username = '$username'";
-
-    // Execute the query
-    $result = mysqli_query($koneksi, $query);
-
-    // Check if the update is successful
-    if ($result) {
-        echo "Status berhasil diperbarui.";
-    } else {
-        echo "Terjadi kesalahan: " . mysqli_error($koneksi);
+    $query_profilePicture = "SELECT profile_photo FROM users WHERE username = '$username'";
+    $hasil_profilePicture = mysqli_query($koneksi, $query_profilePicture);
+    
+    if($hasil_profilePicture && mysqli_num_rows($hasil_profilePicture) > 0)
+    {
+        $row_profilePicture = mysqli_fetch_assoc($hasil_profilePicture);
+        $profilePicture = $row_profilePicture['profile_photo']; 
+    }else{
+        $profilePicture = '';
     }
 
-    // Close the database connection
-    mysqli_close($koneksi);
-}
+    $query_status = "SELECT status FROM users WHERE username = '$username'";
+    $hasil_status = mysqli_query($koneksi, $query_status);
+
+    if($hasil_status)
+    {
+        $row_status = mysqli_fetch_assoc($hasil_status);
+        $status = $row_status['status'];
+    }else{
+        $response = array('error' => 'Gagal menampilkan status: '.mysqli_error($koneksi));
+        echo json_encode($response);
+    }
+    mysqli_close($koneksi); 
 ?>
 
 <!DOCTYPE html>
@@ -72,15 +66,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="text" placeholder="Search Novel...">
             </li>
             <li>
-                <a href="../home/index.html">
+                <a href="../home/index.php">
                     <i class='bx bx-home'></i>
-                    <span class="nama-menu">Home</span>
+                    <span class="nama-menu" onclick="toHome()">Home</span>
                 </a>
             </li>
             <li>
-                <a href="../titles-page/index.html">
+                <a href="../titles-page/index.php">
                     <i class="bx bx-book-open"></i>
-                    <span class="nama-menu">Title</span>
+                    <span class="nama-menu" onclick="toTitles()">Title</span>
                 </a>
             </li>
             <li>
@@ -90,9 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </a>
             </li>
             <li>
-                <a href="../about-developers-page/index.html">
+                <a href="../about-developers-page/index.php">
                     <i class="fa fa-info"></i>
-                    <span class="nama-menu">The Developers</span>
+                    <span class="nama-menu">About Us</span>
                 </a>
             </li>
         </ul>
@@ -100,11 +94,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="info-profil">
             <div class="profil">
                 <div class="detail-profil">
-                    <img src="img/no-profile.png" onclick="direct()" alt="img/no-profile.png">
-                    <!-- handle status dan username -->
+                    <!-- <img src="img/no-profile.png" onclick="direct()" alt="img/no-profile.png"> -->
+                    <?php
+                        if (isset($profilePicture) && !empty($profilePicture)) {
+                            echo '<img id="foto-profil" src="' . $profilePicture . '" alt="" class="foto-profil">';
+                        } else {
+                            echo '<img id="foto-profil" src="img/no-profile.png" alt="" class="foto-profil">';
+                        }
+                    ?>
                     <div class="nama-user">
-                        <div class="nama" id="username-id"><div class="nama"><span id="nama-user"></span></div></div>
-                        <div class="status"><span id='user-status'></span></div>
+                        <div class="nama" id="username-id"><div class="nama"><?php echo $username; ?></div></div>
+                        <div class="status"><?php echo $status; ?></div>
                     </div>
                 </div>
                 <i class='bx bx-log-out cursor-pointer' id="log-out" onclick="logout()" ></i>
@@ -116,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h3>Popular Title</h3>
         <section class="popular-title">
             <div class="popular-title-box">
-                <!-- <img src="img/popular-title-novel-bg-1.jpeg" alt="" class="popular-title-bg"> -->
                 <figure class="popular-title-img">
                     <img src="img/popular-title-novel-1.jpeg" alt="">
                 </figure>
@@ -154,8 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="novels-grid">
                 <div class="novels-card">
                     <div class="novels-head">
-                        <img src="img/latest-novel-1.jpg" alt="" class="card-img">
-
+                        <a href=""><img src="img/latest-novel-1.jpg" alt="" class="card-img"></a>
                         <div class="novels-overlay">
                             <div class="novels-bookmark">
                                 <ion-icon name="bookmark-outline"></ion-icon>
@@ -165,10 +163,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <ion-icon name="star-outline"></ion-icon>
                                 <span>6.4</span>
                             </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
                         </div>
                     </div>
 
@@ -405,10 +399,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <ion-icon name="star-outline"></ion-icon>
                                 <span>6.4</span>
                             </div>
-
-                            <!-- <div class="novels-read">
-                                <ion-icon name="play-circle-outline"></ion-icon>
-                            </div> -->
                         </div>
                     </div>
 
@@ -460,27 +450,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const nama = '<?php echo $username; ?>';
-            document.getElementById('nama-user').textContent = nama;
-            document.getElementById('side-nama-user').textContent = nama;
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            // Ambil data status dari server menggunakan AJAX
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    var status = response.status;
-
-                    // Tampilkan status di dalam elemen span
-                    document.getElementById('user-status').innerHTML = status;
-                }
-            };
-            xhr.open("GET", "../get_status.php", true); 
-            xhr.send();
-        });
-
         function direct()
         {
             window.location.href = '../edit-profile/index.php';

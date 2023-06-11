@@ -1,5 +1,5 @@
 function toHome(){
-    window.location.href = "../home/index.html";
+    window.location.href = "../home/index.php";
 }
 function toTitles(){
     window.location.href = "../titles-page/index.html";
@@ -7,8 +7,8 @@ function toTitles(){
 
 function logout() {
     swal({
-        title: "Are you sure you want to logout?",
-        text: "You will be redirected to the login page",
+        title: "Apakah anda yakin ingin logout?",
+        text: "Anda akan diarahkan ke halaman login",
         buttons: true,
         dangerMode: true,
     })
@@ -27,20 +27,18 @@ function logout() {
                 swal("Error", "Failed to logout", "error");
             });
         } else {
-            swal("Logout cancelled!");
+            swal("Logout dibatalkan!");
         }
     });
 }
 
 let xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                var status = response.status;
-
-                // Tampilkan status di dalam elemen span
-                document.getElementById('user-status').innerHTML = status;
-            }
-        };
-        xhr.open("GET", "get_status.php", true); // Ganti "get_status.php" dengan URL yang sesuai
-        xhr.send();
+xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+        var response = JSON.parse(xhr.responseText);
+        var status = response.status;
+        document.getElementById('user-status').innerHTML = status;
+        }
+    };
+    xhr.open("GET", "get_status.php", true); 
+    xhr.send();
